@@ -1,0 +1,24 @@
+import { Building2 } from 'lucide-react';
+
+export const BANKS = [
+  { id: 'millennium', name: 'Millennium BCP', endpoint: '/converter/millenium/upload/', color: 'bg-green-600' },
+  { id: 'santander', name: 'Santander Totta', endpoint: '/converter/santander/upload/', color: 'bg-red-600' },
+  { id: 'caixa', name: 'Caixa Geral de Depósitos', endpoint: '/converter/caixa/upload/', color: 'bg-orange-600' },
+  { id: 'bpi', name: 'Banco BPI', endpoint: '/converter/bpi/upload/', color: 'bg-blue-500' },
+  { id: 'novo_banco', name: 'Novo Banco', endpoint: '/converter/novo-banco/upload/', color: 'bg-gray-700' },
+  { id: 'bic', name: 'BIC', endpoint: '/converter/bic/upload/', color: 'bg-yellow-600' },
+  { id: 'activo_bank', name: 'ActivoBank', endpoint: '/converter/activo/upload/', color: 'bg-indigo-500' },
+  { id: 'banif', name: 'Banif (Santander)', endpoint: '/converter/banif/upload/', color: 'bg-red-500' },
+  { id: 'montepio', name: 'Montepio', endpoint: '/converter/montepio/upload/', color: 'bg-teal-600' },
+  { id: 'caixa_direto', name: 'Caixa Direto', endpoint: '/converter/caixa-direto/upload/', color: 'bg-orange-500' },
+  { id: 'bbva', name: 'BBVA', endpoint: '/converter/bbva/upload/', color: 'bg-blue-800' },
+  { id: 'popular', name: 'Banco Popular', endpoint: '/converter/popular/upload/', color: 'bg-purple-600' },
+  { id: 'cges', name: 'Crédito Agrícola', endpoint: '/converter/agricola/upload/', color: 'bg-green-700' },
+  { id: 'banco_c1', name: 'Banco C1', endpoint: '/converter/c1/upload/', color: 'bg-slate-600' },
+  { id: 'moneytor', name: 'Moneytor', endpoint: '/converter/moneytor/upload/', color: 'bg-pink-500' },
+  { id: 'finibanco', name: 'Finibanco', endpoint: '/converter/finibanco/upload/', color: 'bg-blue-400' },
+  { id: 'banco_investimento', name: 'Banco Investimento', endpoint: '/converter/investimento/upload/', color: 'bg-slate-800' },
+  { id: 'best', name: 'Banco Best', endpoint: '/converter/best/upload/', color: 'bg-orange-700' },
+  { id: 'fiinvest', name: 'Fiinvest', endpoint: '/converter/fiinvest/upload/', color: 'bg-teal-500' },
+  { id: 'outros', name: 'Outros', endpoint: '/converter/outros/upload/', color: 'bg-gray-500' },
+];
