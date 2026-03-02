@@ -1,14 +1,18 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Landmark, FileText, ShieldCheck,
-  Upload, Settings, LogOut, ChevronRight
+  Upload, Settings, LogOut, Menu, X
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useState } from 'react';
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const menuItems = [
     { name: 'Visão Geral', icon: LayoutDashboard, path: '/dashboard' },
@@ -22,76 +26,143 @@ export default function DashboardLayout() {
     { name: 'Configurações', icon: Settings, path: '/dashboard/settings' },
   ];
 
+  const sidebarWidth = collapsed ? 'w-20' : 'w-64';
+
   return (
-    <div className="flex h-screen bg-gray-50 font-sans">
+    <div className="flex h-screen bg-gray-100">
+
+      {/* MOBILE OVERLAY */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
       {/* SIDEBAR */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col flex-shrink-0">
-        <div className="p-6 border-b border-slate-700 flex items-center gap-3">
-          <div className="bg-blue-600 p-2 rounded-lg">
-            <Building2 size={24} />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">Veloma CRM</h1>
-            <p className="text-xs text-slate-400">Portal Portugal</p>
-          </div>
+      <aside
+        className={`
+          ${sidebarWidth}
+          bg-slate-900 text-white flex flex-col
+          transition-all duration-300
+          fixed lg:relative z-50 h-full
+          ${mobileOpen ? 'left-0' : '-left-full lg:left-0'}
+        `}
+      >
+        {/* Logo */}
+        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
+          {!collapsed && (
+            <div>
+              <h1 className="text-base font-semibold">Veloma CRM</h1>
+              <p className="text-xs text-slate-400">Portal Portugal</p>
+            </div>
+          )}
+
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="hidden lg:block text-slate-400 hover:text-white"
+          >
+            {collapsed ? '›' : '‹'}
+          </button>
+
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="lg:hidden text-slate-400"
+          >
+            <X size={18} />
+          </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        {/* Menu */}
+        <nav className="flex-1 overflow-y-auto py-3 space-y-1 px-2">
           {menuItems.map((item, index) => {
-            if (item.divider) return <li key={`div-${index}`} className="my-2 border-t border-slate-700" />;
+            if (item.divider) {
+              return <div key={index} className="border-t border-slate-800 my-3" />;
+            }
+
             const isActive = location.pathname === item.path;
 
             return (
-              <Link key={item.name} to={item.path} className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors group ${isActive ? 'bg-blue-600 text-white shadow-md' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}>
-                <div className="flex items-center gap-3">
-                  <item.icon size={20} />
-                  <span className="font-medium text-sm">{item.name}</span>
-                </div>
-                {isActive && <ChevronRight size={16} className="opacity-70" />}
+              <Link
+                key={item.name}
+                to={item.path}
+                onClick={() => setMobileOpen(false)}
+                className={`
+                  flex items-center gap-3 px-3 py-2 rounded-md text-sm
+                  transition-colors
+                  ${isActive
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'}
+                `}
+              >
+                <item.icon size={18} />
+                {!collapsed && <span>{item.name}</span>}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-slate-700 bg-slate-900">
-          <button onClick={() => { logout(); navigate('/login'); }} className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-colors text-sm font-medium">
-            <LogOut size={20} /> Sair
+        {/* Logout */}
+        <div className="p-3 border-t border-slate-800">
+          <button
+            onClick={() => {
+              logout();
+              navigate('/login');
+            }}
+            className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-400 hover:bg-red-900/20 rounded-md"
+          >
+            <LogOut size={18} />
+            {!collapsed && 'Sair'}
           </button>
         </div>
       </aside>
 
-      {/* MAIN CONTENT */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
+      {/* MAIN */}
+      <div className="flex-1 flex flex-col lg:ml-0">
 
-        {/* HEADER COM DADOS DO USUÁRIO */}
-        <header className="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-8 flex-shrink-0 shadow-sm z-10">
-          <h2 className="text-lg font-bold text-gray-800 capitalize">
+        {/* HEADER */}
+        <header className="h-14 bg-white border-b flex items-center justify-between px-6">
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="lg:hidden text-gray-600"
+          >
+            <Menu size={20} />
+          </button>
+
+          {/* Título */}
+          <h2 className="text-sm font-semibold text-gray-800 capitalize">
             {location.pathname.split('/').pop()?.replace('-', ' ') || 'Visão Geral'}
           </h2>
 
-          <div className="flex items-center gap-6">
-            <div className="text-right hidden md:block">
-              <p className="text-sm font-bold text-gray-800 leading-tight">
+          {/* User */}
+          <div className="flex items-center gap-4">
+            <div className="hidden md:block text-right">
+              <p className="text-xs font-medium text-gray-800">
                 {user?.first_name} {user?.last_name}
               </p>
-              <div className="flex items-center justify-end gap-2 mt-0.5">
-                <p className="text-xs text-gray-500">{user?.email}</p>
-                <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border ${user?.role === 'admin' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-blue-100 text-blue-700 border-blue-200'}`}>
-                  {user?.role || 'User'}
-                </span>
-              </div>
+              <p className="text-[11px] text-gray-500">{user?.email}</p>
             </div>
 
-            <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden border-2 border-white shadow-md">
-              <img src={`https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=random&size=128`} alt="Avatar" className="w-full h-full object-cover" />
+            <div className="w-8 h-8 rounded-full bg-gray-300 overflow-hidden">
+              <img
+                src={`https://ui-avatars.com/api/?name=${user?.first_name}+${user?.last_name}&background=random&size=128`}
+                alt="Avatar"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-8">
-          <Outlet /> {/* Onde o conteúdo da rota filha aparece */}
-        </div>
-      </main>
+        {/* CONTENT */}
+        <main className="flex-1 overflow-y-auto p-6">
+          <div className="max-w-screen-2xl mx-auto w-full">
+            <Outlet />
+          </div>
+        </main>
+
+      </div>
     </div>
   );
 }

@@ -9,17 +9,29 @@ export const AuthProvider = ({ children }) => {
 
   // Bootstrap da sessão
   useEffect(() => {
-    try {
-      const token = localStorage.getItem('@veloma:access_token');
+    const bootstrap = async () => {
+      const refresh = localStorage.getItem('@veloma:refresh_token');
       const savedUser = localStorage.getItem('@veloma:user');
-      if (token && savedUser) {
-        setUser(JSON.parse(savedUser));
+
+      if (!refresh || !savedUser) {
+        setLoading(false);
+        return;
       }
-    } catch {
-      clearSession();
-    } finally {
-      setLoading(false);
-    }
+
+      try {
+        const { data } = await authService.refresh({ refresh });
+
+        localStorage.setItem('@veloma:access_token', data.access);
+        setUser(JSON.parse(savedUser));
+
+      } catch {
+        clearSession();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    bootstrap();
   }, []);
 
   const clearSession = () => {

@@ -1,16 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: #f3f4f6;
+/* --- 1. CORREÇÃO DE ALTURA (Pega a tela toda) --- */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Evita scroll lateral */
 }
 
-/* Animação para troca de tela */
-.animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f8fafc; /* Slate-50 (fundo geral claro) */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Animação de Entrada */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* --- 2. OPÇÃO DE ESTILO (Escolha uma para usar na Classe) --- */
+
+/* ESTILO A: AZUL CORPORATIVO (Clássico, Sóbrio, Confiança) */
+/* Ideal para escritórios de contabilidade tradicionais */
+.auth-panel-corporate {
+  background: linear-gradient(135deg, #003366 0%, #00509e 100%); /* Azul Marinho Profundo */
+  position: relative;
+}
+
+.auth-panel-corporate::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); /* Textura sutil */
+  opacity: 0.05;
+}
+
+/* ESTILO B: MODERNO (Tech, Gradientes, Animação) */
+/* Ideal para startups e sistemas modernos */
+.auth-panel-modern {
+  background-color: #0f172a; /* Slate 900 */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animação dos Blobs (Bolinhas coloridas) */
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+.delay-2000 { animation-delay: 2s; }
+.delay-4000 { animation-delay: 4s; }
+
+/* Cores dos blobs para o tema Moderno */
+.blob-purple { background-color: #818cf8; opacity: 0.4; } /* Indigo 400 */
+.blob-blue { background-color: #38bdf8; opacity: 0.4; }   /* Sky 400 */
+.blob-cyan { background-color: #2dd4bf; opacity: 0.4; }   /* Teal 400 */
+
+
+/* --- 3. AJUSTES GERAIS DO FORMULÁRIO --- */
+.input-focus-ring:focus-within {
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  border-color: #6366f1;
+}
+
+.btn-primary-transition {
+  transition: all 0.2s ease;
+}
+.btn-primary-transition:active {
+  transform: scale(0.98);
 }

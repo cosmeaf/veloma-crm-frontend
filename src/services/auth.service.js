@@ -1,10 +1,26 @@
 import http from './http';
 
 export const authService = {
-  login: (data) => http.post('/auth/login/', data),
-  register: (data) => http.post('/auth/register/', data),
-  recovery: (data) => http.post('/auth/recovery/', data),
-  otpVerify: (data) => http.post('/auth/otp-verify/', data),
-  resetPassword: (data) => http.post('/auth/reset-password/', data),
-  refresh: (data) => http.post('/auth/refresh/', data),
+
+  login: (payload) =>
+    http.post('/auth/login/', payload),
+
+  register: (payload) =>
+    http.post('/auth/register/', payload),
+
+  recovery: (email) =>
+    http.post('/auth/recovery/', { email }),
+
+  otpVerify: ({ email, code }) =>
+    http.post('/auth/otp-verify/', { email, code }),
+
+  resetPassword: ({ token, password, password2 }) =>
+    http.post('/auth/reset-password/', {
+      token,
+      password,
+      password2
+    }),
+
+  refresh: (refresh) =>
+    http.post('/auth/refresh/', { refresh }),
 };

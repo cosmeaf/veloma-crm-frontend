@@ -2,6 +2,7 @@ import { Building2 } from 'lucide-react';
 
 export const BANKS = [
   { id: 'millennium', name: 'Millennium BCP', endpoint: '/converter/millenium/upload/', color: 'bg-green-600' },
+  { id: 'bradesco', name: 'Bradesco', endpoint: '/converter/bradesco/upload/', color: 'bg-red-600' },
   { id: 'santander', name: 'Santander Totta', endpoint: '/converter/santander/upload/', color: 'bg-red-600' },
   { id: 'caixa', name: 'Caixa Geral de Depósitos', endpoint: '/converter/caixa/upload/', color: 'bg-orange-600' },
   { id: 'bpi', name: 'Banco BPI', endpoint: '/converter/bpi/upload/', color: 'bg-blue-500' },

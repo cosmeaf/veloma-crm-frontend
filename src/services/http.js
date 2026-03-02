@@ -6,7 +6,21 @@ const http = axios.create({
   withCredentials: true,
 });
 
-// Função auxiliar para pegar o CSRF token do cookie (nome padrão do Django)
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
+
 function getCsrfToken() {
   const name = 'csrftoken';
   const cookies = document.cookie.split('; ');
@@ -14,28 +28,19 @@ function getCsrfToken() {
   return csrfCookie ? csrfCookie.split('=')[1] : null;
 }
 
-// Interceptor de REQUEST: adiciona Bearer token e CSRF token quando necessário
 http.interceptors.request.use(
   (config) => {
-    // 1. Adiciona o Bearer token (seu código original mantido)
     const token = localStorage.getItem('@veloma:access_token');
-    if (token && !config.url?.startsWith('/auth/')) {
-      config.headers = config.headers || {};
+
+    if (token && !config.url?.includes('/auth/')) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // 2. Adiciona X-CSRFTOKEN para métodos que modificam dados (POST, PUT, PATCH, DELETE)
     const method = config.method?.toLowerCase();
     if (['post', 'put', 'patch', 'delete'].includes(method)) {
       const csrfToken = getCsrfToken();
-      
       if (csrfToken) {
         config.headers['X-CSRFTOKEN'] = csrfToken;
-      } else {
-        console.warn(
-          '[CSRF] Token não encontrado no cookie. ' +
-          'Verifique se o backend está enviando o cookie "csrftoken" após o login.'
-        );
       }
     }
 
@@ -44,15 +49,66 @@ http.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor de RESPONSE: trata 401 (seu código original mantido)
 http.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
+  response => response,
+  async error => {
+    const originalRequest = error.config;
+
+    if (error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
+
+    // Se for refresh falhando, logout direto
+    if (originalRequest.url.includes('/auth/refresh/')) {
       localStorage.clear();
       window.location.href = '/login?session_expired=true';
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
+
+    if (isRefreshing) {
+      return new Promise(function(resolve, reject) {
+        failedQueue.push({ resolve, reject });
+      })
+        .then(token => {
+          originalRequest.headers['Authorization'] = 'Bearer ' + token;
+          return http(originalRequest);
+        })
+        .catch(err => Promise.reject(err));
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    const refreshToken = localStorage.getItem('@veloma:refresh_token');
+
+    if (!refreshToken) {
+      localStorage.clear();
+      window.location.href = '/login';
+      return Promise.reject(error);
+    }
+
+    try {
+      const { data } = await axios.post(
+        `${API_BASE_URL}/auth/refresh/`,
+        { refresh: refreshToken }
+      );
+
+      localStorage.setItem('@veloma:access_token', data.access);
+
+      processQueue(null, data.access);
+
+      originalRequest.headers['Authorization'] = 'Bearer ' + data.access;
+
+      return http(originalRequest);
+
+    } catch (err) {
+      processQueue(err, null);
+      localStorage.clear();
+      window.location.href = '/login?session_expired=true';
+      return Promise.reject(err);
+    } finally {
+      isRefreshing = false;
+    }
   }
 );
 
